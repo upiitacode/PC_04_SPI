@@ -3,7 +3,7 @@
  * Auto generated Run-Time-Environment Component Configuration File
  *      *** Do not modify ! ***
  *
- * Project: 'SPL_05_LCD_STM32F4' 
+ * Project: 'PC_04_SPI_master' 
  * Target:  'Target 1' 
  */
 
