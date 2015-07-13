@@ -1,6 +1,7 @@
 #include "stm32f30x.h"                  // Device header
 #include "serial_stdio.h"
 #include "retarget_stm32f3.h"
+#include "adc_injected.h"
 #include <string.h>
 /*Led PB13, Button PC13*/
 
@@ -15,24 +16,30 @@ Serial_t USART2_Serial={USART2_getChar,USART2_sendChar};
 char mybf[80];/*Input buffer*/
 char wordBuffer[80];
 
-#define DAC_CONF	(0x3<<12) 
+unsigned int adc_val;
 
-unsigned short adc_val=0;
-unsigned short receivedData=0;
+#define SAMPLE_SIZE 256
+int suma_adc;
+
+
 int main(){
-	int lineCounter=1;
 	//led_init();
+	adc_init_injected();
 	USART2_init(9600);
 	serial_puts(USART2_Serial,"\nSystem ready\n");
 	spi_master_init();
+	
 	while(1){
-		receivedData=spi_xfer(adc_val);
-		serial_printf(USART2_Serial,"transmitted data= 0x%03hX\n",adc_val);
-		serial_printf(USART2_Serial,"received data = 0x%04hX\n",receivedData);
-		lineCounter++;
-		adc_val=lineCounter;
+		suma_adc=0;
+		for(int i=0; i< SAMPLE_SIZE; i++){
+			suma_adc+=adc_injected_read();
+		}
+		adc_val=suma_adc/SAMPLE_SIZE;
+		serial_printf(USART2_Serial,"adc_val = %f\n",(adc_val*(3.3/4095.0)));
+		spi_xfer(adc_val);
 	}
 }
+
 
 
 void led_init(void){
